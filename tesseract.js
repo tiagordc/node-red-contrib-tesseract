@@ -8,10 +8,15 @@ module.exports = function(RED)
 {
 
 	async function Recognize(msg) {
-		const worker = createWorker();
+		console.log(msg.payload);
+		var worker = createWorker();
+		console.log('load');
 		await worker.load();
+		console.log('language');
 		await worker.loadLanguage('eng');
+		console.log('initialize');
 		await worker.initialize('eng');
+		console.log('recognize');
 		const { data: { text } } = await worker.recognize(msg.payload);
 		console.log(text);
 		await worker.terminate();
@@ -27,10 +32,10 @@ module.exports = function(RED)
 
 		node.on('input', function(msg)
 		{
+
 			// Download URL
 			if (/^http(s?):\/\//.test(msg.payload))
 			{
-				node.status({fill: "blue", shape: "dot", text: "downloading image"});
 				request({url:msg.payload, encoding: null}, function(err, res, body)
 				{
 					if (err)
@@ -56,7 +61,9 @@ module.exports = function(RED)
 				msg.payload = x;
 				node.send(msg);
 				node.status({});
-			});
+			}).catch(e => {
+				console.log(e);
+			})
 
 		});
 

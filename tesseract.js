@@ -8,6 +8,7 @@ module.exports = function(RED)
 {
 
 	async function Recognize(msg) {
+		const worker = createWorker();
 		await worker.load();
 		await worker.loadLanguage('eng');
 		await worker.initialize('eng');

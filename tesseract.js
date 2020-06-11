@@ -1,27 +1,9 @@
-//var Tesseract = require('tesseract.js');
 const { createWorker } = require('tesseract.js')
-var request = require('request');
-var fs = require('fs');
-//var path = require("path");
+const request = require('request');
+const fs = require('fs');
 
 module.exports = function(RED)
 {
-
-	async function Recognize(msg) {
-		console.log(msg.payload);
-		var worker = createWorker();
-		console.log('load');
-		await worker.load();
-		console.log('language');
-		await worker.loadLanguage('eng');
-		console.log('initialize');
-		await worker.initialize('eng');
-		console.log('recognize');
-		const { data: { text } } = await worker.recognize(msg.payload);
-		console.log(text);
-		await worker.terminate();
-		return text;
-	}
 
 	function TesseractNode(config)
 	{
@@ -30,10 +12,19 @@ module.exports = function(RED)
 		this.language = config.language;
 		var node = this;
 
+		const worker = createWorker();
+		let isReady = false;
+
+		(async ()=> {
+			await worker.load();
+			await worker.loadLanguage('eng');
+			await worker.initialize('eng');
+			isReady = true;
+		})();
+
 		node.on('input', function(msg)
 		{
 
-			// Download URL
 			if (/^http(s?):\/\//.test(msg.payload))
 			{
 				request({url:msg.payload, encoding: null}, function(err, res, body)
@@ -47,7 +38,6 @@ module.exports = function(RED)
 					Recognize(msg);
 				});
 			}
-			// Open file on local file system
 			else if (typeof msg.payload == "string")
 			{
 				if (!fs.existsSync(msg.payload))
@@ -56,51 +46,16 @@ module.exports = function(RED)
 					return;
 				}
 			}
+
+			(async (img) => {
+				if (isReady) {
+				  	const { data: { text } } = await worker.recognize(img);
+					msg.payload = text;
+					node.send(msg);
+				}
+			})(msg.payload);
 			
-			Recognize(msg).then(x => {
-				msg.payload = x;
-				node.send(msg);
-				node.status({});
-			}).catch(e => {
-				console.log(e);
-			})
-
 		});
-
-
-			// // Update status - Starting
-			// node.status({fill: "blue", shape: "dot", text: "performing ocr"});
-			// // Initiate Tesseract.js
-			// var t = new Tesseract.create(
-			// {
-			// 	workerPath: path.join(__dirname, "/tesseract.js-overload/worker.js"),
-			// 	langPath: "https://github.com/naptha/tessdata/raw/gh-pages/3.02/"
-			// });
-			// // 
-			// // Perform OCR
-			// t.recognize(msg.payload, {lang: node.language}).then(function(result)
-			// {
-			// 	msg.payload = result.text;
-			// 	msg.tesseract = 
-			// 	{
-			// 		text: result.text,
-			// 		confidence: result.confidence,
-			// 		lines: result.lines.map(l => l = 
-			// 		{
-			// 			text: l.text,
-			// 			confidence: l.confidence,
-			// 			words: l.words.map(w => w = 
-			// 			{
-			// 				text: w.text,
-			// 				confidence: w.confidence
-			// 			})
-			// 		})
-			// 	};
-			// 	t.terminate();
-			// 	node.send(msg);
-			// 	// Update status - Done
-			// 	node.status({});
-			// });
 		
 	}
 	RED.nodes.registerType("tesseract", TesseractNode);

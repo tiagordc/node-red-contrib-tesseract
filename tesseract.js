@@ -1,29 +1,27 @@
-const { createWorker } = require('tesseract.js')
+const { createWorker, OEM, PSM } = require('tesseract.js')
 const request = require('request');
 const fs = require('fs');
 
-module.exports = function(RED)
-{
+module.exports = function(RED) {
 
-	function TesseractNode(config)
-	{
+	function TesseractNode(config) {
 
 		RED.nodes.createNode(this, config);
-		this.language = config.language;
-		var node = this;
-
 		const worker = createWorker();
+
+		let node = this;
 		let isReady = false;
+		let options = { tessedit_ocr_engine_mode: OEM.DEFAULT, tessedit_pageseg_mode: PSM.SINGLE_BLOCK, tessedit_char_whitelist: config.chars };
 
 		(async ()=> {
 			await worker.load();
-			await worker.loadLanguage('eng');
-			await worker.initialize('eng');
+			await worker.loadLanguage(config.language);
+			await worker.initialize(config.language);
+			await worker.setParameters(options);
 			isReady = true;
 		})();
 
-		node.on('input', function(msg)
-		{
+		node.on('input', function(msg) {
 
 			if (/^http(s?):\/\//.test(msg.payload))
 			{
@@ -58,5 +56,7 @@ module.exports = function(RED)
 		});
 		
 	}
+
 	RED.nodes.registerType("tesseract", TesseractNode);
+
 }

@@ -10,4 +10,5 @@ This version includes:
 
  * https://medium.com/@jeromewus/why-i-refactor-tesseract-js-v2-50f750a9cfe2
  * https://dev.to/yvonnickfrin/ocr-in-javascript-with-tesseract-hnl
-
+ * https://github.com/naptha/tesseract.js/blob/master/docs/api.md
+ 

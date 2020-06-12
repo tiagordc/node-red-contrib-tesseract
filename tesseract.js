@@ -11,7 +11,10 @@ module.exports = function(RED) {
 
 		let node = this;
 		let isReady = false;
-		let options = { tessedit_ocr_engine_mode: OEM.DEFAULT, tessedit_pageseg_mode: PSM.SINGLE_BLOCK, tessedit_char_whitelist: config.chars };
+		if (!config.language) config.language = 'eng';
+		let options = { tessedit_ocr_engine_mode: OEM.DEFAULT, tessedit_pageseg_mode: PSM.SINGLE_BLOCK };
+		if (config.psm) options.tessedit_pageseg_mode = eval(`PSM.${config.psm}`);
+		if (config.chars) options.tessedit_char_whitelist = config.chars;
 
 		(async ()=> {
 			await worker.load();

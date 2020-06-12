@@ -5,8 +5,7 @@
         defaults: {
             name: {value:""},
             language: {value:"eng"},
-            oem: {value: 3},
-            psm: {value: 3},
+            psm: {value: 'SINGLE_BLOCK'},
             chars: {value:""}
         },
         inputs:1,
@@ -25,18 +24,14 @@
     </div>
     <div class="form-row">
         <label for="node-input-language"><i class="icon-language"></i> Language</label>
-        <input type="text" id="node-input-language" placeholder="Language (defaults to eng)">
+        <input type="text" id="node-input-language">
     </div>
     <div class="form-row">
-      <label for="node-input-language"><i class="icon-language"></i> Engine Mode</label>
-      <input type="number" id="node-input-oem" >
+      <label for="node-input-psm"><i class="icon-language"></i> Page Segmentation</label>
+      <input type="text" id="node-input-psm">
     </div>
     <div class="form-row">
-      <label for="node-input-language"><i class="icon-language"></i> Page Segmentation Mode</label>
-      <input type="number" id="node-input-psm" >
-    </div>
-    <div class="form-row">
-      <label for="node-input-chars"><i class="icon-language"></i> Language</label>
+      <label for="node-input-chars"><i class="icon-language"></i> Characters</label>
       <input type="text" id="node-input-chars">
   </div>
 </script>
